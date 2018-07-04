@@ -1,67 +1,70 @@
 (function () {
     'use strict';
-    angular.module('LunchCheck', [])
-        .controller('LunchCheckController', LunchCheckController);
+    angular
+        .module('ShoppingListCheckOff', [])
+        .controller('ToBuyShoppingController', ToBuyShoppingController)
+        .controller('AlreadyBoughtShoppingController', AlreadyBoughtShoppingController)
+        .service('ShoppingListCheckOffService', ShoppingListCheckOffService);
 
-    LunchCheckController.$inject = ['$scope'];
-    function LunchCheckController($scope) {
-        $scope.dishes = "";
-        $scope.inputClass = "";
-        $scope.message = "";
-        $scope.messageClass = "text-success";
+    ToBuyShoppingController.$inject = ['ShoppingListCheckOffService'];
 
-        $scope.check = function () {
-            $scope.message = messageForDishes($scope.dishes);
-            $scope.messageClass = classForMessage($scope.dishes);
-            $scope.inputClass = classForInput($scope.dishes);
-        };
+    function ToBuyShoppingController(ShoppingListCheckOffService) {
+        var controller = this;
 
-        $scope.reset = function () {
-            $scope.inputClass = "";
-            $scope.message = "";
-            $scope.messageClass = "text-success";
+        controller.toBuyItems = ShoppingListCheckOffService.getToBuyItems();
+
+        controller.doBuy = function (index) {
+            ShoppingListCheckOffService.doBuy(index);
         }
     }
 
-    function messageForDishes(dishes) {
-        if (dishes.trim() == "") {
-            return "Please enter data first";
-        }
-        else if (numberOfDishes(dishes) <= 3) {
-            return "Enjoy!";
-        }
-        else {
-            return "Too much!";
-        }
+    AlreadyBoughtShoppingController.$inject = ['ShoppingListCheckOffService'];
+
+    function AlreadyBoughtShoppingController(ShoppingListCheckOffService) {
+        var controller = this;
+
+        controller.boughtItems = ShoppingListCheckOffService.getBoughtItems();
+
     }
 
-    function classForMessage(dishes) {
-        if (dishes.trim() == "") {
-            return "text-danger";
-        }
-        else {
-            return "text-success";
-        }
-    }
+    function ShoppingListCheckOffService() {
+        var service = this;
 
-    function classForInput(dishes) {
-        if (dishes.trim() == "") {
-            return "has-error";
-        }
-        else {
-            return "has-success";
-        }
-    }
-
-    function numberOfDishes(dishes) {
-        var items = dishes.split(",");
-        var numberOfItems = 0;
-        for (var i = 0; i < items.length; i++) {
-            if (items[i].trim() != "") {
-                numberOfItems++;
+        var toBuyItems = [{
+                name: "cookies",
+                quantity: 10
+            },
+            {
+                name: "milk",
+                quantity: 10
+            },
+            {
+                name: "tea",
+                quantity: 10
+            },
+            {
+                name: "coffee",
+                quantity: 10
+            },
+            {
+                name: "sugar",
+                quantity: 10
             }
+        ]
+        var boughtItems = [];
+
+        this.doBuy = function (index) {
+            boughtItems.push(toBuyItems[index]);
+            toBuyItems.splice(index, 1);
         }
-        return numberOfItems;
+
+        this.getToBuyItems = function () {
+            return toBuyItems;
+        }
+
+        this.getBoughtItems = function () {
+            return boughtItems;
+        }
     }
-}
-)();
+
+})();
